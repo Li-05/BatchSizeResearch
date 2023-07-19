@@ -1,8 +1,8 @@
 {
-    "model": "Net_F1", 
-    "dataset": "MNIST", 
-    "learning_rate": 0.01, 
-    "batch_size": 64, 
-    "epochs": 5,
-    "weight_path" : "params/F1.pth"
+    "model": "Net_C1", 
+    "dataset": "CIFAR10", 
+    "learning_rate": 0.001, 
+    "batch_size": 25000, 
+    "epochs": 200,
+    "weight_path" : "params/C1.pth"
 }

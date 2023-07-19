@@ -2,8 +2,8 @@ import os
 import torch
 import torch.optim as optim
 import torch.nn as nn
-from net import Net_F1
-from data import load_data_MNIST
+from net import Net_F1, Net_C1, Net_C3
+from data import load_data_MNIST, load_data_CIFAR10, load_data_CIFAR100
 from tool import plot_accuracy_loss
 import json
 
@@ -48,6 +48,10 @@ def train():
     weight_path = config['weight_path'] # 模型加载和保存位置
     if model_name == 'Net_F1':
         net = Net_F1()
+    if model_name == 'Net_C1':
+        net = Net_C1()
+    if model_name == 'Net_C3':
+        net = Net_C3()
 
     if os.path.exists(weight_path):
         net.load_state_dict(torch.load(weight_path))
@@ -58,6 +62,10 @@ def train():
     # 数据集加载
     if dataset_name == 'MNIST':
         trainloader, testloader = load_data_MNIST(batch_size=batch_size)
+    if dataset_name == 'CIFAR10':
+        trainloader, testloader = load_data_CIFAR10(batch_size=batch_size)
+    if dataset_name == 'CIFAR100':
+        trainloader, testloader = load_data_CIFAR100(batch_size=batch_size)
 
     # 损失函数与优化算法
     criterion = nn.CrossEntropyLoss()
