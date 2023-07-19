@@ -8,8 +8,6 @@ from tool import plot_accuracy_loss
 import json
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-# 保存模型到params文件夹下
-weight_path = 'params/F1.pth'
 # 折线图保存到results文件夹下
 figure_dir = 'results/'
 # 记录文件保存到results文件夹下
@@ -38,22 +36,34 @@ def calculate_accuracy(model, dataloader):
 模型训练部分
 '''
 def train():
-    net = Net_F1()
+    # 加载配置文件
+    with open('config.json', 'r') as f:
+        config = json.load(f)
+    # 获取配置文件中的各种参数
+    model_name = config['model']
+    dataset_name = config['dataset']
+    learning_rate = config['learning_rate']
+    batch_size = config['batch_size']
+    epoch_num = config['epochs']
+    weight_path = config['weight_path'] # 模型加载和保存位置
+    if model_name == 'Net_F1':
+        net = Net_F1()
+
     if os.path.exists(weight_path):
         net.load_state_dict(torch.load(weight_path))
         print('successful load weight!')
     else:
         print('not successful load weight!')
+
+    # 数据集加载
+    if dataset_name == 'MNIST':
+        trainloader, testloader = load_data_MNIST(batch_size=batch_size)
+
     # 损失函数与优化算法
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.Adam(net.parameters(), lr=0.01)
-    # 数据集加载
-    trainloader, testloader = load_data_MNIST(batch_size=64)
+    optimizer = optim.Adam(net.parameters(), lr=learning_rate)
     # 模型加载到GPU上
     net.to(device)
-
-    # 训练轮数
-    epoch_num = 5
 
     # 记录每个epoch的损失值和准确率
     train_losses = []
