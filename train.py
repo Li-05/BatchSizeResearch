@@ -2,7 +2,7 @@ import os
 import torch
 import torch.optim as optim
 import torch.nn as nn
-from net import Net_F1, Net_C1, Net_C3
+from net import Net_F1, Net_C1, Net_C3, Net_C2, Net_C4
 from data import load_data_MNIST, load_data_CIFAR10, load_data_CIFAR100
 from tool import plot_accuracy_loss
 import json
@@ -52,6 +52,10 @@ def train():
         net = Net_C1()
     if model_name == 'Net_C3':
         net = Net_C3()
+    if model_name == 'Net_C2':
+        net = Net_C2()
+    if model_name == 'Net_C4':
+        net = Net_C4()
 
     if os.path.exists(weight_path):
         net.load_state_dict(torch.load(weight_path))
