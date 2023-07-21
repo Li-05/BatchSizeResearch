@@ -217,8 +217,9 @@ class Net_C4(nn.Module):
         return x
 
 if __name__ == '__main__':
-    net = Net_C4()
+    net = Net_C3()
     input_tensor = torch.randn(64, 3, 32, 32)  # 创建28x28的张量
     output = net(input_tensor)
     print("Output shape:", output.shape)
+    print("Total number of parameters: {}".format(sum(p.numel() for p in net.parameters())))
     #print("Output probabilities:", output)
