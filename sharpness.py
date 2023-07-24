@@ -9,19 +9,17 @@ import json
 import os
 
 # 定义计算尖锐性度量的函数
-def sharpness_metric(model, dataloader, epsilon):
+def sharpness_metric(model, dataloader, epsilon, num_trials=100):
     model.eval()  # 切换到评估模式，避免影响模型参数
     with torch.no_grad():
-        sharpness = 0.0
-        count = 0
         original_params = []  # 存储每个参数的初始值
         for param in model.parameters():
             original_params.append(param.data.clone())
 
-        for inputs, labels in dataloader:
-            inputs, labels = inputs.to(device), labels.to(device)  # 将数据移到GPU设备上
-            fx = model(inputs)
-            loss = F.cross_entropy(fx, labels)
+        max_sharpness = float('-inf')
+        for trial in range(num_trials):
+            loss_sum = 0.0
+            count = 0
 
             for param, original_param in zip(model.parameters(), original_params):
                 # 在当前参数附近构建小邻域，同时变动所有参数
@@ -29,26 +27,22 @@ def sharpness_metric(model, dataloader, epsilon):
                 perturbed_param = perturbed_param.to(device)  # 将参数移到GPU设备上
                 param.data = original_param + perturbed_param
 
-            # 计算在小邻域内的损失函数值
-            fx_perturbed = model(inputs)
-            loss_perturbed = F.cross_entropy(fx_perturbed, labels)
+            for inputs, labels in dataloader:
+                inputs, labels = inputs.to(device), labels.to(device)  # 将数据移到GPU设备上
+                fx = model(inputs)
+                loss = F.cross_entropy(fx, labels)
+                loss_sum += loss.item()
+                count += 1
 
-            for param, original_param in zip(model.parameters(), original_params):
                 # 恢复原始参数值
-                param.data = original_param
+                for param, original_param in zip(model.parameters(), original_params):
+                    param.data = original_param
 
-            # 计算在小邻域内的最大损失函数值
-            max_loss_perturbed = loss_perturbed.max()
+            average_loss = loss_sum / count
+            sharpness = (average_loss - loss.item()) * 100.0
+            max_sharpness = max(max_sharpness, sharpness)
 
-            # 计算尖锐性度量
-            sharpness += (max_loss_perturbed - loss).item()
-
-            count += 1
-
-        sharpness /= count
-        sharpness *= 100.0
-
-    return sharpness
+        return max_sharpness
 
 if __name__ == '__main__':
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # 设置设备
