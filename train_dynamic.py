@@ -4,11 +4,16 @@ import torch.optim as optim
 import torch.nn as nn
 from net import Net_F1, Net_C1, Net_C3, Net_C2, Net_C4
 from data import load_data_MNIST, load_data_CIFAR10, load_data_CIFAR100
-from tool import plot_accuracy_loss
 import json
 import numpy as np
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+
+add_parm_noise = False
+noise_epoch = 5 # 每多少轮添加一次噪音
+top_Percent_weights = 0.2
+noise_std = 0.1  # 添加的高斯噪声标准差
+
 
 '''
 计算多分类模型的准确率
@@ -54,7 +59,7 @@ def dynamic_train():
     batch_size = config['batch_size']
     epoch_num = config['epochs']
     weight_path = config['weight_path']
-
+    add_parm_noise = config['add_parm_noise']
     if model_name == 'Net_F1':
         net = Net_F1()
     if model_name == 'Net_C1':
@@ -114,9 +119,8 @@ def dynamic_train():
         train_accuracies.append(train_acc)
         test_accuracies.append(test_acc)
 
-        if (epoch + 1) % 1 == 0:
-            top_Percent_weights = 0.2  # 选择影响损失值较大的前0.2个权重
-            noise_std = 0.1  # 添加的高斯噪声标准差
+        if add_parm_noise==1 and (epoch + 1) % noise_epoch == 0:
+            print("add noise")
             add_noise_to_weights(net, noise_std, top_Percent_weights)
     
 if __name__ == '__main__':

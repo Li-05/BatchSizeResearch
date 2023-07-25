@@ -4,5 +4,6 @@
     "learning_rate": 0.001, 
     "batch_size": 32, 
     "epochs": 100,
-    "weight_path" : "params/C1_Bs.pth"
+    "weight_path" : "params/C1_Bs.pth",
+    "add_parm_noise": 1
 }
