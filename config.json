@@ -1,8 +1,8 @@
 {
-    "model": "Net_C2", 
+    "model": "Net_C1", 
     "dataset": "CIFAR10", 
     "learning_rate": 0.001, 
     "batch_size": 32, 
-    "epochs": 200,
-    "weight_path" : "params/C2_Bs.pth"
+    "epochs": 100,
+    "weight_path" : "params/C1_Bs.pth"
 }

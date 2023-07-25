@@ -16,7 +16,19 @@ def sharpness_metric(model, dataloader, epsilon, num_trials=100):
         for param in model.parameters():
             original_params.append(param.data.clone())
 
+        # 原始loss
+        loss_sum = 0.0
+        count = 0
+        for inputs, labels in dataloader:
+            inputs, labels = inputs.to(device), labels.to(device)  # 将数据移到GPU设备上
+            fx = model(inputs)
+            loss = F.cross_entropy(fx, labels)
+            loss_sum += loss.item()
+            count += 1
+        orginal_loss = loss_sum / count
+
         max_sharpness = float('-inf')
+        # 微调后loss
         for trial in range(num_trials):
             loss_sum = 0.0
             count = 0
@@ -39,7 +51,7 @@ def sharpness_metric(model, dataloader, epsilon, num_trials=100):
                     param.data = original_param
 
             average_loss = loss_sum / count
-            sharpness = (average_loss - loss.item()) * 100.0
+            sharpness = (average_loss - orginal_loss) * 100.0
             max_sharpness = max(max_sharpness, sharpness)
 
         return max_sharpness
@@ -87,4 +99,4 @@ if __name__ == '__main__':
     # 计算尖锐性度量值
     sharpness = sharpness_metric(model, trainloader, epsilon)
 
-    print("尖锐性度量值: {:.3f}".format(sharpness))
+    print("尖锐性度量值: {:.5f}".format(sharpness))
