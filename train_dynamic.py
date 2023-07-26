@@ -59,6 +59,7 @@ def add_noise_to_weights(model, noise_std, top_Percent_weights):
 def dynamic_train():
     with open('config_dynamic.json', 'r') as f:
         config = json.load(f)
+    print(json.dumps(config, indent=4))
     # 获取配置文件中的各种参数
     model_name = config['model']
     dataset_name = config['dataset']
