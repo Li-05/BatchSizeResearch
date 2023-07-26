@@ -1,3 +1,4 @@
 # 忽略数据集
 dataset/*
 params/*
+params_dynamic/*
