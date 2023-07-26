@@ -4,10 +4,16 @@ import torch.optim as optim
 import torch.nn as nn
 from net import Net_F1, Net_C1, Net_C3, Net_C2, Net_C4
 from data import load_data_MNIST, load_data_CIFAR10, load_data_CIFAR100
+from tool import plot_accuracy_loss
 import json
 import numpy as np
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+# 折线图保存到results文件夹下
+figure_dir = 'results_dynamic/'
+# 记录文件保存到results文件夹下
+record_file = 'results_dynamic/record.json'
+
 
 add_parm_noise = False
 noise_epoch = 5 # 每多少轮添加一次噪音
@@ -51,7 +57,7 @@ def add_noise_to_weights(model, noise_std, top_Percent_weights):
             param.data = torch.from_numpy(weight_values).to(device)
 
 def dynamic_train():
-    with open('config.json', 'r') as f:
+    with open('config_dynamic.json', 'r') as f:
         config = json.load(f)
     # 获取配置文件中的各种参数
     model_name = config['model']
@@ -92,6 +98,13 @@ def dynamic_train():
     train_losses = []
     train_accuracies = []
     test_accuracies = []
+    if os.path.exists(record_file):
+        with open(record_file, 'r') as f:
+            record = json.load(f)
+            train_losses = record['train_losses']
+            train_accuracies = record['train_accuracies']
+            test_accuracies = record['test_accuracies']
+            print('successful load record!')
     batch_nums = 0
     total_loss = 0.0
     for epoch in range(epoch_num):
@@ -124,5 +137,16 @@ def dynamic_train():
             print("add noise")
             add_noise_to_weights(net, noise_std, top_Percent_weights)
     
+    torch.save(net.state_dict(), weight_path)
+    print('Finished Dynamic Training')
+    record = {
+        'train_losses': train_losses,
+        'train_accuracies': train_accuracies,
+        'test_accuracies': test_accuracies
+    }
+    with open(record_file, 'w') as f:
+        json.dump(record, f)
+    plot_accuracy_loss(train_accuracies, test_accuracies, train_losses, figure_dir)
+
 if __name__ == '__main__':
     dynamic_train()

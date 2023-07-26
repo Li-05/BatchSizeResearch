@@ -1,0 +1,6 @@
+{
+    "model": "Net_C1", 
+    "dataset": "CIFAR10", 
+    "batch_size": 32, 
+    "weight_path" : "params_dynamic/C1_Bs.pth"
+}

@@ -58,13 +58,11 @@ def sharpness_metric(model, dataloader, epsilon, num_trials=100):
 
 if __name__ == '__main__':
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")  # 设置设备
-    with open('config.json', 'r') as f:
+    with open('config_sharpness.json', 'r') as f:
         config = json.load(f)
     model_name = config['model']
     dataset_name = config['dataset']
-    learning_rate = config['learning_rate']
     batch_size = config['batch_size']
-    epoch_num = config['epochs']
     weight_path = config['weight_path']
 
     # 创建一个示例模型
