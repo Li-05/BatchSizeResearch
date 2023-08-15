@@ -54,6 +54,30 @@ def add_noise_to_weights(model, noise_std, top_Percent_weights):
             weight_values[top_N_indices] += noise
             param.data = torch.from_numpy(weight_values).to(device)
 
+def add_noise_to_weights2(model, noise_std, top_Percent_weights=0.2):
+    for name, param in model.named_parameters():
+        if 'weight' in name:  # 只对权重参数添加噪声
+            device = param.device  # 获取参数所在的设备
+            weight_values = param.data.cpu().numpy()
+            weight_abs = np.abs(weight_values)
+            
+            top_N_weights = int(np.ceil(weight_abs.size * top_Percent_weights / 2)) # 一半用于最大的，一半用于最小的
+
+            # 使用 unravel_index 获取绝对值最大的权重的多维索引
+            top_N_indices = np.unravel_index(np.argsort(weight_abs, axis=None)[-top_N_weights:], weight_abs.shape)
+
+            # 使用 unravel_index 获取绝对值最小的权重的多维索引
+            bottom_N_indices = np.unravel_index(np.argsort(weight_abs, axis=None)[:top_N_weights], weight_abs.shape)
+
+            noise = np.random.normal(loc=0.0, scale=noise_std, size=top_N_weights * 2)
+
+            # 在绝对值最大和最小的权重上添加噪声
+            weight_values[top_N_indices] += noise[:top_N_weights]
+            weight_values[bottom_N_indices] += noise[top_N_weights:]
+
+            param.data = torch.from_numpy(weight_values).to(device)
+
+
 def dynamic_train():
     with open('config_dynamic.json', 'r') as f:
         config = json.load(f)
@@ -135,7 +159,7 @@ def dynamic_train():
 
         if epoch<add_noise_spoch and add_parm_noise==1 and (epoch + 1) % noise_epoch == 0:
             print("add noise")
-            add_noise_to_weights(net, noise_std, top_Percent_weights)
+            add_noise_to_weights2(net, noise_std, top_Percent_weights)
     
     torch.save(net.state_dict(), weight_path)
     print('Finished Dynamic Training')
