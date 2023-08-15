@@ -14,11 +14,9 @@ figure_dir = 'results_dynamic/'
 # 记录文件保存到results文件夹下
 record_file = 'results_dynamic/record.json'
 
-
-add_parm_noise = False
-noise_epoch = 5 # 每多少轮添加一次噪音
+noise_epoch = 1 # 每多少轮添加一次噪音
 top_Percent_weights = 0.2
-noise_std = 0.1  # 添加的高斯噪声标准差
+noise_std = 0.01  # 添加的高斯噪声标准差
 
 
 '''
@@ -68,6 +66,7 @@ def dynamic_train():
     epoch_num = config['epochs']
     weight_path = config['weight_path']
     add_parm_noise = config['add_parm_noise']
+    add_noise_spoch = config['add_noise_spoch']
     if model_name == 'Net_F1':
         net = Net_F1()
     if model_name == 'Net_C1':
@@ -134,7 +133,7 @@ def dynamic_train():
         train_accuracies.append(train_acc)
         test_accuracies.append(test_acc)
 
-        if add_parm_noise==1 and (epoch + 1) % noise_epoch == 0:
+        if epoch<add_noise_spoch and add_parm_noise==1 and (epoch + 1) % noise_epoch == 0:
             print("add noise")
             add_noise_to_weights(net, noise_std, top_Percent_weights)
     

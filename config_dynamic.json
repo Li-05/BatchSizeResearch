@@ -1,9 +1,10 @@
 {
-    "model": "Net_C1", 
+    "model": "Net_C2", 
     "dataset": "CIFAR10", 
-    "learning_rate": 0.001, 
+    "learning_rate": 0.0001, 
     "batch_size": 32, 
-    "epochs": 1,
-    "weight_path" : "params_dynamic/C1_Bs.pth",
-    "add_parm_noise": 1
+    "epochs": 400,
+    "weight_path" : "params_dynamic/C2_Bs.pth",
+    "add_parm_noise": 1,
+    "add_noise_spoch": 30
 }

@@ -162,6 +162,7 @@ class Net_C2(nn.Module):
         self.classifier = nn.Sequential(
             nn.Linear(512, 512),
             nn.ReLU(inplace=True),
+            nn.Dropout(0.5),
             nn.Linear(512, 10)  # 10 for CIFAR-10, change to 100 for C4 configuration
         )
 
@@ -224,7 +225,7 @@ class Net_C4(nn.Module):
         return x
 
 if __name__ == '__main__':
-    net = Net_C3()
+    net = Net_C2()
     input_tensor = torch.randn(64, 3, 32, 32)  # 创建28x28的张量
     output = net(input_tensor)
     print("Output shape:", output.shape)
