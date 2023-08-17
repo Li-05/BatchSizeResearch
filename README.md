@@ -18,3 +18,4 @@ sharpness.py:   计算训练完成的神经网络的局部最优解的尖锐度
 tool.py:    存放各种工具
 train.py:   普通的训练文件
 train_dynamic.py:   添加权重高斯噪声的训练文件
+toy_proj:   文件夹，内涵用于研究优化大batch方法的小型网络和数据集，用于快速实验
