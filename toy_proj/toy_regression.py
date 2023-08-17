@@ -4,14 +4,23 @@ import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import matplotlib.pyplot as plt
 
-from sklearn.model_selection import train_test_split
+from torch.utils.data import random_split
+
+# 检查是否有可用的GPU
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # 生成数据
 x = torch.unsqueeze(torch.linspace(-10, 10, 8192), dim=1)
 y = torch.sin(x) + 0.2 * torch.rand(x.size())
 
-# 随机划分训练集和验证集
-x_train, x_val, y_train, y_val = train_test_split(x, y, test_size=0.2, random_state=42)
+# 创建完整的数据集
+dataset = TensorDataset(x, y)
+
+# 划分训练集和验证集
+train_size = int(0.8 * len(dataset))
+val_size = len(dataset) - train_size
+train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
+
 
 # 定义线性回归模型
 class LinearRegression(nn.Module):
@@ -28,13 +37,12 @@ class LinearRegression(nn.Module):
 
 # 训练模型
 def train_regression(learning_rate, optimizer_type, batch_size):
+    
     # 创建DataLoader
-    train_dataset = TensorDataset(x_train, y_train)
-    val_dataset = TensorDataset(x_val, y_val)
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True) # 使用传入的batch_size
-    val_loader = DataLoader(val_dataset, batch_size=batch_size) # 使用传入的batch_size
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size)
 
-    model = LinearRegression() # 实例化模型
+    model = LinearRegression().to(device) # 实例化模型并移动到GPU
     criterion = nn.MSELoss() # 定义损失函数
     if optimizer_type == 'SGD':
         optimizer = optim.SGD(model.parameters(), lr=learning_rate)
@@ -48,10 +56,11 @@ def train_regression(learning_rate, optimizer_type, batch_size):
     min_val_loss = float('inf')
     corresponding_train_loss = None
 
-    for epoch in range(1000):
+    for epoch in range(10):
         model.train() # 设置为训练模式
         train_loss = 0
         for inputs, labels in train_loader:
+            inputs, labels = inputs.to(device), labels.to(device)
             outputs = model(inputs) # 前向传播
             loss = criterion(outputs, labels) # 计算损失
             train_loss += loss.item()
@@ -65,6 +74,7 @@ def train_regression(learning_rate, optimizer_type, batch_size):
         val_loss = 0
         with torch.no_grad():
             for inputs, labels in val_loader:
+                inputs, labels = inputs.to(device), labels.to(device)
                 outputs = model(inputs)
                 loss = criterion(outputs, labels)
                 val_loss += loss.item()
@@ -81,15 +91,20 @@ def train_regression(learning_rate, optimizer_type, batch_size):
     # 打印最小验证损失及其对应的训练损失
     print(f'Minimum Val Loss = {min_val_loss:.5f}, Corresponding Train Loss = {corresponding_train_loss:.5f}')
 
+    # 获取验证集的x和y
+    x_val, y_val = zip(*val_loader.dataset)
+    x_val = torch.cat(x_val).view(-1, 1)
+    y_val = torch.cat(y_val).view(-1, 1)
+
     # 绘制结果
     plt.figure(figsize=(12, 5))
     plt.subplot(1, 2, 1)
     # 对验证集的x值进行排序，以便绘制拟合线
-    sorted_indices = torch.argsort(x_val, dim=0)
-    sorted_x_val = torch.gather(x_val, 0, sorted_indices)
-    sorted_y_val = torch.gather(y_val, 0, sorted_indices)
+    sorted_indices = torch.argsort(x_val.cpu(), dim=0)
+    sorted_x_val = torch.gather(x_val.cpu(), 0, sorted_indices)
+    sorted_y_val = torch.gather(y_val.cpu(), 0, sorted_indices)
     plt.scatter(sorted_x_val.numpy(), sorted_y_val.numpy()) # 绘制验证集数据点
-    plt.plot(sorted_x_val.numpy(), model(sorted_x_val).data.numpy(), 'r-', lw=5) # 绘制拟合线
+    plt.plot(sorted_x_val.numpy(), model(sorted_x_val.to(device)).data.cpu().numpy(), 'r-', lw=5) # 绘制拟合线
     plt.title('Regression Result on Validation Set')
 
     plt.subplot(1, 2, 2)
@@ -98,7 +113,7 @@ def train_regression(learning_rate, optimizer_type, batch_size):
     plt.title('Loss Curves')
     plt.legend()
 
-    plt.show() # 显示图像
+    plt.savefig('toy_pic.jpg') # 保存图像到当前文件夹下
 
 # 调用训练函数
-train_regression(learning_rate=0.001, optimizer_type='SGD', batch_size=8192)
+train_regression(learning_rate=0.001, optimizer_type='SGD', batch_size=256)
