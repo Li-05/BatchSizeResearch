@@ -6,16 +6,16 @@ import matplotlib.pyplot as plt
 from toy_tool import gauss_noise
 from torch.utils.data import random_split
 import time
-
 config = {
+    "times": 1,
     "lr": 0.01,
-    "optim": "Adam",
+    "optim": "SGD",
     "batch_size_config": {
         "small": 256,
         "large": 32768
     },
     "batch_size": "large",
-    "epoch_num": 30,
+    "epoch_num": 40000,
     "noise_type": {
         "types":["no", gauss_noise],
         "choice": 1
@@ -142,6 +142,5 @@ def train_regression(learning_rate, optimizer_type, batch_size):
     plt.savefig(filename) # 保存图像到当前文件夹下
 
 # 调用训练函数
-train_regression(learning_rate=config['lr'], optimizer_type=config['optim'], batch_size=config['batch_size_config'][config['batch_size']])
-# train_regression(learning_rate=config['lr'], optimizer_type=config['optim'], batch_size=config['batch_size_config'][config['batch_size']])
-# train_regression(learning_rate=config['lr'], optimizer_type=config['optim'], batch_size=config['batch_size_config'][config['batch_size']])
+for i in range(config['times']):
+    train_regression(learning_rate=config['lr'], optimizer_type=config['optim'], batch_size=config['batch_size_config'][config['batch_size']])
