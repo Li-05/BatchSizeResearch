@@ -5,12 +5,13 @@ from torch.utils.data import DataLoader, TensorDataset
 import matplotlib.pyplot as plt
 
 from torch.utils.data import random_split
+import time
 
 # 检查是否有可用的GPU
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # 生成数据
-x = torch.unsqueeze(torch.linspace(-10, 10, 8192), dim=1)
+x = torch.unsqueeze(torch.linspace(-10, 10, 12800), dim=1)
 y = torch.sin(x) + 0.2 * torch.rand(x.size())
 
 # 创建完整的数据集
@@ -37,7 +38,8 @@ class LinearRegression(nn.Module):
 
 # 训练模型
 def train_regression(learning_rate, optimizer_type, batch_size):
-    
+    print(optimizer_type, batch_size)
+    start_time = time.time()
     # 创建DataLoader
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
     val_loader = DataLoader(val_dataset, batch_size=batch_size)
@@ -56,7 +58,7 @@ def train_regression(learning_rate, optimizer_type, batch_size):
     min_val_loss = float('inf')
     corresponding_train_loss = None
 
-    for epoch in range(10):
+    for epoch in range(4000):
         model.train() # 设置为训练模式
         train_loss = 0
         for inputs, labels in train_loader:
@@ -88,6 +90,10 @@ def train_regression(learning_rate, optimizer_type, batch_size):
         
         print(f'Epoch {epoch+1}: Train Loss = {train_loss:.5f}, Val Loss = {val_loss:.5f}')
 
+    elapsed_time = time.time() - start_time
+    minutes, seconds = divmod(elapsed_time, 60) # 将秒数转换为分钟和秒的组合
+    print(f'Training took {int(minutes)} minutes and {seconds:.2f} seconds')
+
     # 打印最小验证损失及其对应的训练损失
     print(f'Minimum Val Loss = {min_val_loss:.5f}, Corresponding Train Loss = {corresponding_train_loss:.5f}')
 
@@ -113,7 +119,11 @@ def train_regression(learning_rate, optimizer_type, batch_size):
     plt.title('Loss Curves')
     plt.legend()
 
-    plt.savefig('toy_pic.jpg') # 保存图像到当前文件夹下
+    timestamp = int(time.time())
+    filename = f'toy_pic_{timestamp}.jpg'
+    plt.savefig(filename) # 保存图像到当前文件夹下
 
 # 调用训练函数
-train_regression(learning_rate=0.001, optimizer_type='SGD', batch_size=256)
+train_regression(learning_rate=0.01, optimizer_type='Adam', batch_size=32768)
+train_regression(learning_rate=0.01, optimizer_type='Adam', batch_size=32768)
+train_regression(learning_rate=0.01, optimizer_type='Adam', batch_size=32768)
