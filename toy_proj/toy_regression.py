@@ -15,8 +15,11 @@ config = {
         "large": 32768
     },
     "batch_size": "large",
-    "epoch_num": 10
-
+    "epoch_num": 30,
+    "noise_type": {
+        "types":["no", gauss_noise],
+        "choice": 1
+    }
 }
 
 # 检查是否有可用的GPU
@@ -102,6 +105,9 @@ def train_regression(learning_rate, optimizer_type, batch_size):
         
         print(f'Epoch {epoch+1}: Train Loss = {train_loss:.5f}, Val Loss = {val_loss:.5f}')
 
+        if config['noise_type']['choice'] != 0:
+            config['noise_type']['types'][config['noise_type']['choice']](model, iter=epoch+1)
+
     elapsed_time = time.time() - start_time
     minutes, seconds = divmod(elapsed_time, 60) # 将秒数转换为分钟和秒的组合
     print(f'Training took {int(minutes)} minutes and {seconds:.2f} seconds')
@@ -137,5 +143,5 @@ def train_regression(learning_rate, optimizer_type, batch_size):
 
 # 调用训练函数
 train_regression(learning_rate=config['lr'], optimizer_type=config['optim'], batch_size=config['batch_size_config'][config['batch_size']])
-train_regression(learning_rate=config['lr'], optimizer_type=config['optim'], batch_size=config['batch_size_config'][config['batch_size']])
-train_regression(learning_rate=config['lr'], optimizer_type=config['optim'], batch_size=config['batch_size_config'][config['batch_size']])
+# train_regression(learning_rate=config['lr'], optimizer_type=config['optim'], batch_size=config['batch_size_config'][config['batch_size']])
+# train_regression(learning_rate=config['lr'], optimizer_type=config['optim'], batch_size=config['batch_size_config'][config['batch_size']])

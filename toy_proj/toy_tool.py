@@ -5,7 +5,11 @@ import torch.nn as nn
 import json
 import numpy as np
 
-def gauss_noise(model, noise_std, top_Percent_weights):
+def gauss_noise(model, iter, noise_std=0.1, top_Percent_weights=0.2):
+    if(iter<=100):
+        noise_std = noise_std/iter
+    else:
+        return
     print("add gauss noise")
     for name, param in model.named_parameters():
         if 'weight' in name:  # 只对权重参数添加噪声
