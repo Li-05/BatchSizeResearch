@@ -6,6 +6,7 @@ import json
 import numpy as np
 
 def gauss_noise(model, noise_std, top_Percent_weights):
+    print("add gauss noise")
     for name, param in model.named_parameters():
         if 'weight' in name:  # 只对权重参数添加噪声
             device = param.device  # 获取参数所在的设备

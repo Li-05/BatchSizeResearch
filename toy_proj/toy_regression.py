@@ -3,9 +3,21 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import matplotlib.pyplot as plt
-
+from toy_tool import gauss_noise
 from torch.utils.data import random_split
 import time
+
+config = {
+    "lr": 0.01,
+    "optim": "Adam",
+    "batch_size_config": {
+        "small": 256,
+        "large": 32768
+    },
+    "batch_size": "large",
+    "epoch_num": 10
+
+}
 
 # 检查是否有可用的GPU
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -58,7 +70,7 @@ def train_regression(learning_rate, optimizer_type, batch_size):
     min_val_loss = float('inf')
     corresponding_train_loss = None
 
-    for epoch in range(4000):
+    for epoch in range(config['epoch_num']):
         model.train() # 设置为训练模式
         train_loss = 0
         for inputs, labels in train_loader:
@@ -124,6 +136,6 @@ def train_regression(learning_rate, optimizer_type, batch_size):
     plt.savefig(filename) # 保存图像到当前文件夹下
 
 # 调用训练函数
-train_regression(learning_rate=0.01, optimizer_type='Adam', batch_size=32768)
-train_regression(learning_rate=0.01, optimizer_type='Adam', batch_size=32768)
-train_regression(learning_rate=0.01, optimizer_type='Adam', batch_size=32768)
+train_regression(learning_rate=config['lr'], optimizer_type=config['optim'], batch_size=config['batch_size_config'][config['batch_size']])
+train_regression(learning_rate=config['lr'], optimizer_type=config['optim'], batch_size=config['batch_size_config'][config['batch_size']])
+train_regression(learning_rate=config['lr'], optimizer_type=config['optim'], batch_size=config['batch_size_config'][config['batch_size']])
