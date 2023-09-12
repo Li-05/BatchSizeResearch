@@ -7,18 +7,18 @@ from toy_tool import gauss_noise
 from torch.utils.data import random_split
 import time
 config = {
-    "times": 1,
+    "times": 5,
     "lr": 0.01,
-    "optim": "SGD",
+    "optim": "Adam",
     "batch_size_config": {
         "small": 256,
         "large": 32768
     },
     "batch_size": "large",
-    "epoch_num": 40000,
+    "epoch_num": 4000,
     "noise_type": {
         "types":["no", gauss_noise],
-        "choice": 1
+        "choice": 0
     }
 }
 
@@ -37,6 +37,27 @@ train_size = int(0.8 * len(dataset))
 val_size = len(dataset) - train_size
 train_dataset, val_dataset = random_split(dataset, [train_size, val_size])
 
+
+# 实验优化对比模型
+# class LinearRegression(nn.Module):
+#     def __init__(self):
+#         super(LinearRegression, self).__init__()
+#         self.forward_net = nn.Sequential(
+#             nn.Linear(1, 64), nn.ReLU(), 
+#             nn.Linear(64, 128), nn.ReLU(), 
+#             nn.Linear(128, 128), nn.ReLU(),
+#             nn.Linear(128, 256), nn.ReLU(), 
+#             nn.Linear(256, 256), nn.ReLU(), 
+#             nn.Linear(256, 512), nn.ReLU(), 
+#             nn.Linear(512, 512), nn.ReLU(), 
+#             nn.Linear(512, 1024), nn.ReLU(), 
+#             nn.Linear(1024, 512), nn.ReLU(), nn.Dropout(0.3),# 隐藏层 
+#             nn.Linear(512, 64), nn.ReLU(), nn.Dropout(0.7),# 隐藏层
+#             nn.Linear(64, 1) # 输出层
+#         )
+
+#     def forward(self, x):
+#         return self.forward_net(x)  # 前向传播
 
 # 定义线性回归模型
 class LinearRegression(nn.Module):
