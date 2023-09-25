@@ -11,15 +11,15 @@ from lamb import create_lamb_optimizer
 
 # optim types: SGD  Adam  LARS  LAMB
 config = {
-    "times": 5,
+    "times": 1,
     "lr": 0.01,
     "optim": "LAMB",
     "batch_size_config": {
         "small": 256,
         "large": 32768
     },
-    "batch_size": "large",
-    "epoch_num": 4000,
+    "batch_size": "small",
+    "epoch_num": 5,
     "noise_type": {
         "types":["no", gauss_noise],
         "choice": 0
