@@ -7,12 +7,13 @@ from toy_tool import gauss_noise
 from torch.utils.data import random_split
 import time
 from lars import create_optimizer_lars
+from lamb import create_lamb_optimizer
 
-# optim types: SGD  Adam  LARS
+# optim types: SGD  Adam  LARS  LAMB
 config = {
     "times": 5,
     "lr": 0.01,
-    "optim": "LARS",
+    "optim": "LAMB",
     "batch_size_config": {
         "small": 256,
         "large": 32768
@@ -90,8 +91,9 @@ def train_regression(learning_rate, optimizer_type, batch_size):
     elif optimizer_type == 'Adam':
         optimizer = optim.Adam(model.parameters(), lr=learning_rate)
     elif optimizer_type == 'LARS':
-        optimizer = create_optimizer_lars(model, lr=0.01, momentum=0.9, weight_decay=0.0005, bn_bias_separately=False, epsilon=1e-8)
-
+        optimizer = create_optimizer_lars(model, lr=learning_rate, momentum=0.9, weight_decay=0.0005, bn_bias_separately=False, epsilon=1e-8)
+    elif optimizer_type == 'LAMB':
+        optimizer = create_lamb_optimizer(model, lr=learning_rate)
     train_losses = [] # 存储训练损失
     val_losses = [] # 存储验证损失
 
